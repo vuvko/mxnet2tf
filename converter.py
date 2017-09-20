@@ -156,11 +156,14 @@ class Converter(object):
         self.tf_nodes[node_name] = tf.nn.softmax(input_sym, name=node_name)
         return self.tf_nodes[node_name]
 
-    def create_elementwise(self, node):
+    def create_elementwise(self, node, op='sum'):
         node_name = node['name']
         inputs_sym = [self.tf_nodes[self.mx_nodes[n[0]]['name']] for n in node['inputs']]
         # TODO: more elementwise types
-        self.tf_nodes[node_name] = sum(inputs_sym)
+        if op == 'sum':
+            self.tf_nodes[node_name] = tf.add_n(inputs_sym, name=node_name)
+        else:
+            raise NameError('Unknown elementwise type: %s' % op)
         return self.tf_nodes[node_name]
 
     def create_fc(self, node):
